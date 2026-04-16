@@ -1,0 +1,135 @@
+.emotion-picker {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 24px;
+}
+
+.emotion-score {
+  display: flex;
+  gap: 10px;
+}
+
+.emotion-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.emotion-dot.filled {
+  background: var(--color-success);
+  transform: scale(1.2);
+}
+
+.emotion-question {
+  text-align: center;
+  padding: 32px 48px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  transition: background 0.3s;
+}
+
+.emotion-question.correct-flash {
+  background: #e8f5e9;
+}
+
+.emotion-face {
+  font-size: 5rem;
+  display: block;
+  animation: faceWiggle 2s ease-in-out infinite;
+}
+
+@keyframes faceWiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.emotion-situation {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-top: 16px;
+  color: var(--color-text);
+}
+
+.emotion-ask {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  margin-top: 8px;
+}
+
+.emotion-options {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.emotion-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 28px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s, box-shadow 0.15s;
+  min-width: 120px;
+}
+
+.emotion-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.emotion-btn:active {
+  transform: scale(0.95);
+}
+
+.emotion-btn.correct {
+  background: #c8e6c9;
+  transform: scale(1.1);
+}
+
+.emotion-btn-emoji {
+  font-size: 2.5rem;
+}
+
+.emotion-btn-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.emotion-feedback {
+  font-size: 1.5rem;
+  font-weight: 900;
+  animation: feedbackPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.emotion-feedback.correct {
+  color: var(--color-success);
+}
+
+.emotion-feedback.wrong {
+  color: var(--color-primary);
+}
+
+@keyframes feedbackPop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

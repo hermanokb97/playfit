@@ -1,0 +1,55 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-bg: #fef9ef;
+  --color-primary: #ff8c42;
+  --color-secondary: #6ec6ff;
+  --color-success: #66bb6a;
+  --color-danger: #ef5350;
+  --color-text: #3e2723;
+  --color-text-light: #795548;
+  --color-card-1: #ffcdd2;
+  --color-card-2: #f8bbd0;
+  --color-card-3: #e1bee7;
+  --color-card-4: #c5cae9;
+  --color-card-5: #b3e5fc;
+  --color-card-6: #b2dfdb;
+  --color-card-7: #dcedc8;
+  --color-card-8: #fff9c4;
+  --radius: 20px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --font-family: 'Noto Sans KR', sans-serif;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+button {
+  font-family: var(--font-family);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

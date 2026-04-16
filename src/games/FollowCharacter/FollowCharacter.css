@@ -1,0 +1,35 @@
+.follow-char {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.follow-char-canvas {
+  width: 100%;
+  height: 100%;
+  cursor: none;
+}
+
+.follow-char-score {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: white;
+  padding: 8px 20px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.follow-char-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  white-space: nowrap;
+}

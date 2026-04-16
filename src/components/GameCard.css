@@ -1,0 +1,46 @@
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 16px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: cardAppear 0.5s ease backwards;
+  min-height: 180px;
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.game-card:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.game-card:active {
+  transform: scale(0.96);
+}
+
+.game-card-emoji {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.game-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: center;
+  word-break: keep-all;
+}

@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
+import { useSettings } from '../../context/SettingsContext';
 import { useCanvas } from '../../hooks/useCanvas';
 import { playStarCollect } from '../../utils/soundGenerator';
 import { lerp, distance, randomBetween } from '../../utils/animations';
@@ -16,6 +17,7 @@ interface Food {
 const FOOD_EMOJIS = ['🍎', '🍌', '🍇', '🍓', '🥕', '🍪', '🍩'];
 
 export default function FollowCharacter() {
+  const { pointerScale, fontScale } = useSettings();
   const [score, setScore] = useState(0);
   const mouseRef = useRef({ x: 300, y: 300 });
   const charRef = useRef({ x: 300, y: 300 });
@@ -66,7 +68,7 @@ export default function FollowCharacter() {
       foodsRef.current.forEach((food) => {
         if (!food.collected) {
           const dist = distance(charRef.current.x, charRef.current.y, food.x, food.y);
-          if (dist < 45) {
+          if (dist < 45 * pointerScale) {
             food.collected = true;
             food.scale = 1.5;
             playStarCollect();
@@ -91,7 +93,7 @@ export default function FollowCharacter() {
           ctx.translate(0, bob);
         }
         ctx.globalAlpha = food.collected ? food.scale : 1;
-        ctx.font = '36px serif';
+        ctx.font = `${36 * fontScale}px serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(food.emoji, 0, 0);
@@ -106,7 +108,7 @@ export default function FollowCharacter() {
       const bob = Math.sin(frameCountRef.current * 0.08) * 4;
       ctx.translate(0, bob);
 
-      ctx.font = '48px serif';
+      ctx.font = `${48 * fontScale}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('🐣', 0, 0);
@@ -116,14 +118,14 @@ export default function FollowCharacter() {
       ctx.fillStyle = '#ff8c42';
       ctx.globalAlpha = 0.3;
       ctx.beginPath();
-      ctx.arc(mouseRef.current.x, mouseRef.current.y, 8, 0, Math.PI * 2);
+      ctx.arc(mouseRef.current.x, mouseRef.current.y, 8 * pointerScale, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     },
-    [spawnFood]
+    [spawnFood, pointerScale, fontScale]
   );
 
-  const canvasRef = useCanvas(draw);
+  const canvasRef = useCanvas(draw, [pointerScale, fontScale]);
 
   return (
     <GameLayout title="🐣 캐릭터 따라오기" color="#3f51b5">

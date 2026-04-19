@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
 import SuccessOverlay from '../../components/SuccessOverlay';
+import { useSettings } from '../../context/SettingsContext';
 import { useCanvas } from '../../hooks/useCanvas';
 import { playStarCollect } from '../../utils/soundGenerator';
 import { distance, randomBetween } from '../../utils/animations';
@@ -33,6 +34,7 @@ function createStars(w: number, h: number, count: number): Star[] {
 const TOTAL_STARS = 15;
 
 export default function StarCollect() {
+  const { pointerScale } = useSettings();
   const [collected, setCollected] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [round, setRound] = useState(0);
@@ -95,7 +97,7 @@ export default function StarCollect() {
 
         if (
           !star.collected &&
-          distance(mx, my, star.x, star.y) < star.size + 20
+          distance(mx, my, star.x, star.y) < star.size + 20 * pointerScale
         ) {
           star.collected = true;
           playStarCollect();
@@ -126,7 +128,7 @@ export default function StarCollect() {
       });
 
       ctx.save();
-      const glowSize = 30 + Math.sin(frame * 0.1) * 5;
+      const glowSize = (30 + Math.sin(frame * 0.1) * 5) * pointerScale;
       const gradient = ctx.createRadialGradient(mx, my, 0, mx, my, glowSize);
       gradient.addColorStop(0, 'rgba(255, 255, 150, 0.4)');
       gradient.addColorStop(1, 'rgba(255, 255, 150, 0)');
@@ -136,10 +138,10 @@ export default function StarCollect() {
       ctx.fill();
       ctx.restore();
     },
-    []
+    [pointerScale]
   );
 
-  const canvasRef = useCanvas(draw, [round]);
+  const canvasRef = useCanvas(draw, [round, pointerScale]);
 
   return (
     <GameLayout title="🌟 별 모으기" color="#ffc107">

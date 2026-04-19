@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
+import { useSettings } from '../../context/SettingsContext';
 import { useCanvas } from '../../hooks/useCanvas';
 import { playPop } from '../../utils/soundGenerator';
 import {
@@ -38,6 +39,7 @@ function createBalloon(w: number, h: number): Balloon {
 }
 
 export default function BalloonChase() {
+  const { pointerScale } = useSettings();
   const [score, setScore] = useState(0);
   const mouseRef = useRef({ x: -100, y: -100 });
   const balloonsRef = useRef<Balloon[]>([]);
@@ -150,14 +152,14 @@ export default function BalloonChase() {
       ctx.save();
       ctx.fillStyle = 'rgba(0,0,0,0.15)';
       ctx.beginPath();
-      ctx.arc(mx, my, 6, 0, Math.PI * 2);
+      ctx.arc(mx, my, 6 * pointerScale, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     },
-    []
+    [pointerScale]
   );
 
-  const canvasRef = useCanvas(draw);
+  const canvasRef = useCanvas(draw, [pointerScale]);
 
   return (
     <GameLayout title="🎈 풍선 따라가기" color="#00bcd4">

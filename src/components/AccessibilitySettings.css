@@ -1,0 +1,49 @@
+.accessibility-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 420px;
+}
+
+.accessibility-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.accessibility-label {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.accessibility-settings input[type='range'] {
+  width: 100%;
+  min-height: 44px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.accessibility-value {
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  min-width: 3.2em;
+  text-align: right;
+}
+
+@media (max-width: 520px) {
+  .accessibility-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .accessibility-value {
+    text-align: left;
+  }
+}

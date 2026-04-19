@@ -1,4 +1,5 @@
 import GameCard from './components/GameCard';
+import AccessibilitySettings from './components/AccessibilitySettings';
 import './Home.css';
 
 const GAMES = [
@@ -19,6 +20,7 @@ export default function Home() {
         <h1 className="home-title">🎮 Playfit</h1>
         <p className="home-subtitle">함께 놀아요!</p>
       </header>
+      <AccessibilitySettings className="home-settings" idPrefix="home" />
       <div className="home-grid">
         {GAMES.map((game, i) => (
           <GameCard

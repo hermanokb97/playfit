@@ -8,9 +8,13 @@
   overflow-y: auto;
 }
 
+.home-settings {
+  margin-bottom: 28px;
+}
+
 .home-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   animation: headerFloat 3s ease-in-out infinite alternate;
 }
 

@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
 import SuccessOverlay from '../../components/SuccessOverlay';
+import { useSettings } from '../../context/SettingsContext';
 import { useCanvas } from '../../hooks/useCanvas';
 import { playDing, playSuccess } from '../../utils/soundGenerator';
 import { distance } from '../../utils/animations';
@@ -29,9 +30,10 @@ function generatePath(w: number, h: number): PathPoint[] {
   return points;
 }
 
-const TOLERANCE = 35;
+const BASE_TOLERANCE = 35;
 
 export default function LineTracing() {
+  const { pointerScale, fontScale } = useSettings();
   const [progress, setProgress] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [level, setLevel] = useState(0);
@@ -80,10 +82,11 @@ export default function LineTracing() {
       const path = pathRef.current;
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
+      const tolerance = BASE_TOLERANCE * pointerScale;
 
       ctx.save();
       ctx.strokeStyle = '#e0e0e0';
-      ctx.lineWidth = TOLERANCE * 2;
+      ctx.lineWidth = tolerance * 2;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -118,7 +121,7 @@ export default function LineTracing() {
           closestDist = d;
           closestIdx = i;
         }
-        if (d < TOLERANCE) {
+        if (d < tolerance) {
           isOnPath = true;
         }
       }
@@ -168,7 +171,7 @@ export default function LineTracing() {
       }
 
       ctx.save();
-      ctx.font = '28px serif';
+      ctx.font = `${28 * fontScale}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('🏁', path[0].x, path[0].y - 30);
@@ -179,20 +182,20 @@ export default function LineTracing() {
       ctx.fillStyle = cursorColor;
       ctx.globalAlpha = 0.6;
       ctx.beginPath();
-      ctx.arc(mx, my, 12, 0, Math.PI * 2);
+      ctx.arc(mx, my, 12 * pointerScale, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = cursorColor;
       ctx.globalAlpha = 1;
       ctx.beginPath();
-      ctx.arc(mx, my, 5, 0, Math.PI * 2);
+      ctx.arc(mx, my, 5 * pointerScale, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     },
-    [showSuccess]
+    [showSuccess, pointerScale, fontScale]
   );
 
-  const canvasRef = useCanvas(draw, [level]);
+  const canvasRef = useCanvas(draw, [level, pointerScale, fontScale]);
 
   return (
     <GameLayout title="✏️ 선 따라가기" color="#009688">

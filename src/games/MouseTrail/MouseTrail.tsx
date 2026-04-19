@@ -1,5 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import GameLayout from '../../components/GameLayout';
+import { useSettings } from '../../context/SettingsContext';
 import { getRainbowColor } from '../../utils/animations';
 import './MouseTrail.css';
 
@@ -10,6 +11,7 @@ interface TrailPoint {
 }
 
 export default function MouseTrail() {
+  const { pointerScale } = useSettings();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const trailRef = useRef<TrailPoint[]>([]);
   const colorIdxRef = useRef(0);
@@ -70,7 +72,7 @@ export default function MouseTrail() {
 
           ctx.save();
           ctx.strokeStyle = color;
-          ctx.lineWidth = 12;
+          ctx.lineWidth = 12 * pointerScale;
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
           ctx.globalAlpha = 0.8;
@@ -84,7 +86,7 @@ export default function MouseTrail() {
           ctx.fillStyle = color;
           ctx.globalAlpha = 0.3;
           ctx.beginPath();
-          ctx.arc(x, y, 18, 0, Math.PI * 2);
+          ctx.arc(x, y, 18 * pointerScale, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
@@ -94,7 +96,7 @@ export default function MouseTrail() {
 
       prevRef.current = { x, y };
     },
-    []
+    [pointerScale]
   );
 
   const handleClear = useCallback(() => {

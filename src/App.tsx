@@ -8,6 +8,7 @@ import BalloonChase from './games/BalloonChase/BalloonChase';
 import LineTracing from './games/LineTracing/LineTracing';
 import StarCollect from './games/StarCollect/StarCollect';
 import MouseTrail from './games/MouseTrail/MouseTrail';
+import NameWriting from './games/NameWriting/NameWriting';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
       <Route path="/line-tracing" element={<LineTracing />} />
       <Route path="/star-collect" element={<StarCollect />} />
       <Route path="/mouse-trail" element={<MouseTrail />} />
+      <Route path="/name-writing" element={<NameWriting />} />
     </Routes>
   );
 }

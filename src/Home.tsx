@@ -11,6 +11,7 @@ const GAMES = [
   { emoji: '✏️', title: '선 따라가기', path: '/line-tracing', color: 'var(--color-card-6)' },
   { emoji: '🌟', title: '별 모으기', path: '/star-collect', color: 'var(--color-card-7)' },
   { emoji: '🖌️', title: '마우스 흔적 그림', path: '/mouse-trail', color: 'var(--color-card-8)' },
+  { emoji: '✍️', title: '이름 쓰기', path: '/name-writing', color: 'var(--color-card-6)' },
 ];
 
 export default function Home() {

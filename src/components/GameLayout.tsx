@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AccessibilitySettings from './AccessibilitySettings';
+import { useSettings, settingsBounds } from '../context/SettingsContext';
 import { playClick } from '../utils/soundGenerator';
 import './GameLayout.css';
 
@@ -13,6 +14,8 @@ interface GameLayoutProps {
 export default function GameLayout({ title, color, children }: GameLayoutProps) {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { pointerScale, setPointerScale } = useSettings();
+  const pointerControlId = 'game-pointer-scale';
 
   const handleBack = () => {
     playClick();
@@ -36,6 +39,28 @@ export default function GameLayout({ title, color, children }: GameLayoutProps) 
           ← 돌아가기
         </button>
         <h1 className="game-title">{title}</h1>
+        <div
+          className="game-pointer-control"
+          role="group"
+          aria-label="마우스 크기 조절"
+        >
+          <label className="game-pointer-label" htmlFor={pointerControlId}>
+            마우스 크기
+          </label>
+          <input
+            id={pointerControlId}
+            type="range"
+            min={settingsBounds.pointer.min}
+            max={settingsBounds.pointer.max}
+            step={0.05}
+            value={pointerScale}
+            aria-valuetext={`${Math.round(pointerScale * 100)}%`}
+            onChange={(e) => setPointerScale(parseFloat(e.target.value))}
+          />
+          <span className="game-pointer-value" aria-live="polite">
+            {Math.round(pointerScale * 100)}%
+          </span>
+        </div>
       </header>
       <main className="game-content">
         {children}

@@ -34,7 +34,7 @@ const SettingsContext = createContext<SettingsContextValue | null>(null);
 const FONT_MIN = 0.85;
 const FONT_MAX = 1.5;
 const POINTER_MIN = 0.6;
-const POINTER_MAX = 2;
+const POINTER_MAX = 4;
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
@@ -90,6 +90,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSettings(): SettingsContextValue {
   const ctx = useContext(SettingsContext);
   if (!ctx) {
@@ -98,6 +99,7 @@ export function useSettings(): SettingsContextValue {
   return ctx;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const settingsBounds = {
   font: { min: FONT_MIN, max: FONT_MAX },
   pointer: { min: POINTER_MIN, max: POINTER_MAX },

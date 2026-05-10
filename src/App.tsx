@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from './Home';
+import Records from './Records';
 import SensoryTouch from './games/SensoryTouch/SensoryTouch';
 import FollowOrder from './games/FollowOrder/FollowOrder';
 import EmotionPicker from './games/EmotionPicker/EmotionPicker';
@@ -8,11 +9,13 @@ import BalloonChase from './games/BalloonChase/BalloonChase';
 import LineTracing from './games/LineTracing/LineTracing';
 import StarCollect from './games/StarCollect/StarCollect';
 import MouseTrail from './games/MouseTrail/MouseTrail';
+import RedGreen from './games/RedGreen/RedGreen';
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/records" element={<Records />} />
       <Route path="/sensory-touch" element={<SensoryTouch />} />
       <Route path="/follow-order" element={<FollowOrder />} />
       <Route path="/emotion-picker" element={<EmotionPicker />} />
@@ -21,6 +24,7 @@ export default function App() {
       <Route path="/line-tracing" element={<LineTracing />} />
       <Route path="/star-collect" element={<StarCollect />} />
       <Route path="/mouse-trail" element={<MouseTrail />} />
+      <Route path="/red-green" element={<RedGreen />} />
     </Routes>
   );
 }

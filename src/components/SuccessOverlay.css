@@ -21,6 +21,7 @@
   text-align: center;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   animation: successBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: min(680px, 92vw);
 }
 
 @keyframes successBounce {
@@ -54,6 +55,25 @@
 .success-confetti {
   font-size: 2rem;
   animation: confettiBounce 0.5s ease infinite alternate;
+}
+
+@media (max-width: 700px) {
+  .success-content {
+    padding: 34px 28px;
+    border-radius: 24px;
+  }
+
+  .success-stars {
+    font-size: 2.4rem;
+  }
+
+  .success-message {
+    font-size: 1.65rem;
+  }
+
+  .success-confetti {
+    font-size: 1.7rem;
+  }
 }
 
 @keyframes confettiBounce {

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import GameLayout from '../../components/GameLayout';
 import SuccessOverlay from '../../components/SuccessOverlay';
+import { usePlayRecorder } from '../../hooks/usePlayRecorder';
 import { playDing, playWrong, playSuccess } from '../../utils/soundGenerator';
 import './FollowOrder.css';
 
@@ -11,6 +12,10 @@ const LEVELS = [
 ];
 
 export default function FollowOrder() {
+  const { recordPlay, resetSession } = usePlayRecorder(
+    'follow-order',
+    '순서 따라하기'
+  );
   const [levelIdx, setLevelIdx] = useState(0);
   const [nextExpected, setNextExpected] = useState(0);
   const [pressed, setPressed] = useState<number[]>([]);
@@ -41,6 +46,12 @@ export default function FollowOrder() {
 
         if (newStep === totalSteps) {
           playSuccess();
+          recordPlay({
+            score: newStep,
+            total: totalSteps,
+            success: true,
+            difficulty: `${levelIdx + 1}단계`,
+          });
           setShowSuccess(true);
         }
       } else {
@@ -52,7 +63,7 @@ export default function FollowOrder() {
         }, 500);
       }
     },
-    [nextExpected, numbers, pressed, totalSteps, showSuccess, reset]
+    [levelIdx, nextExpected, numbers, pressed, recordPlay, totalSteps, showSuccess, reset]
   );
 
   const handleSuccessDone = useCallback(() => {
@@ -64,10 +75,25 @@ export default function FollowOrder() {
       setLevelIdx(0);
     }
     reset();
-  }, [levelIdx, reset]);
+    resetSession();
+  }, [levelIdx, reset, resetSession]);
+
+  const handleBeforeBack = useCallback(() => {
+    if (pressed.length === 0) return;
+    recordPlay({
+      score: pressed.length,
+      total: totalSteps,
+      success: false,
+      difficulty: `${levelIdx + 1}단계`,
+    });
+  }, [levelIdx, pressed.length, recordPlay, totalSteps]);
 
   return (
-    <GameLayout title="🚶 순서 따라하기" color="#e91e63">
+    <GameLayout
+      title="🚶 순서 따라하기"
+      color="#e91e63"
+      onBeforeBack={handleBeforeBack}
+    >
       <div className={`follow-order ${shake ? 'shake' : ''}`}>
         <div className="order-track">
           <div className="order-track-bg" />

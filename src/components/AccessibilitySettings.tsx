@@ -1,4 +1,4 @@
-import { useSettings, settingsBounds } from '../context/SettingsContext';
+import { useSettings, settingsBounds } from '../context/settings';
 import './AccessibilitySettings.css';
 
 type Props = {
@@ -37,7 +37,7 @@ export default function AccessibilitySettings({
       </div>
       <div className="accessibility-row">
         <label className="accessibility-label" htmlFor={pointerId}>
-          마우스 표시 크기
+          포인터 표시 크기
         </label>
         <input
           id={pointerId}

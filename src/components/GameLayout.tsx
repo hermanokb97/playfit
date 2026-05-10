@@ -8,13 +8,20 @@ interface GameLayoutProps {
   title: string;
   color: string;
   children: React.ReactNode;
+  onBeforeBack?: () => void;
 }
 
-export default function GameLayout({ title, color, children }: GameLayoutProps) {
+export default function GameLayout({
+  title,
+  color,
+  children,
+  onBeforeBack,
+}: GameLayoutProps) {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleBack = () => {
+    onBeforeBack?.();
     playClick();
     navigate('/');
   };
@@ -44,7 +51,7 @@ export default function GameLayout({ title, color, children }: GameLayoutProps) 
         type="button"
         className="game-settings-fab"
         onClick={openSettings}
-        aria-label="글자와 마우스 크기 설정"
+        aria-label="글자와 포인터 크기 설정"
       >
         ⚙️
       </button>

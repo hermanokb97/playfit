@@ -1,9 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
-import { useSettings } from '../../context/SettingsContext';
+import { useSettings } from '../../context/settings';
 import { useCanvas } from '../../hooks/useCanvas';
+import { usePlayRecorder } from '../../hooks/usePlayRecorder';
 import { playStarCollect } from '../../utils/soundGenerator';
 import { lerp, distance, randomBetween } from '../../utils/animations';
+import { capturePointer, getPointerPosition } from '../../utils/pointer';
 import './FollowCharacter.css';
 
 interface Food {
@@ -18,6 +20,10 @@ const FOOD_EMOJIS = ['🍎', '🍌', '🍇', '🍓', '🥕', '🍪', '🍩'];
 
 export default function FollowCharacter() {
   const { pointerScale, fontScale } = useSettings();
+  const { recordPlay } = usePlayRecorder(
+    'follow-character',
+    '캐릭터 따라오기'
+  );
   const [score, setScore] = useState(0);
   const mouseRef = useRef({ x: 300, y: 300 });
   const charRef = useRef({ x: 300, y: 300 });
@@ -35,13 +41,25 @@ export default function FollowCharacter() {
     });
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mouseRef.current = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
+  const updatePointer = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    mouseRef.current = getPointerPosition(e);
   }, []);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      capturePointer(e);
+      updatePointer(e);
+    },
+    [updatePointer]
+  );
+
+  const handleBeforeBack = useCallback(() => {
+    if (score <= 0) return;
+    recordPlay({
+      score,
+      success: false,
+    });
+  }, [recordPlay, score]);
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -128,17 +146,22 @@ export default function FollowCharacter() {
   const canvasRef = useCanvas(draw, [pointerScale, fontScale]);
 
   return (
-    <GameLayout title="🐣 캐릭터 따라오기" color="#3f51b5">
+    <GameLayout
+      title="🐣 캐릭터 따라오기"
+      color="#3f51b5"
+      onBeforeBack={handleBeforeBack}
+    >
       <div className="follow-char" ref={containerRef}>
         <canvas
           ref={canvasRef}
           className="follow-char-canvas"
-          onMouseMove={handleMouseMove}
+          onPointerDown={handlePointerDown}
+          onPointerMove={updatePointer}
         />
         <div className="follow-char-score">
           🍎 {score}개
         </div>
-        <p className="follow-char-hint">마우스를 움직여 보세요! 캐릭터가 따라와요</p>
+        <p className="follow-char-hint">손가락이나 마우스를 움직여 보세요! 캐릭터가 따라와요</p>
       </div>
     </GameLayout>
   );

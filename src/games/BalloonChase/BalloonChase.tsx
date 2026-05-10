@@ -1,8 +1,10 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
-import { useSettings } from '../../context/SettingsContext';
+import { useSettings } from '../../context/settings';
 import { useCanvas } from '../../hooks/useCanvas';
+import { usePlayRecorder } from '../../hooks/usePlayRecorder';
 import { playPop } from '../../utils/soundGenerator';
+import { capturePointer, getPointerPosition } from '../../utils/pointer';
 import {
   distance,
   randomBetween,
@@ -25,13 +27,66 @@ interface Balloon {
   popScale: number;
 }
 
-function createBalloon(w: number, h: number): Balloon {
+interface Difficulty {
+  label: string;
+  minScore: number;
+  activeBalloons: number;
+  speedScale: number;
+  minRadius: number;
+  maxRadius: number;
+}
+
+const DIFFICULTIES: Difficulty[] = [
+  {
+    label: '쉬움',
+    minScore: 0,
+    activeBalloons: 4,
+    speedScale: 1,
+    minRadius: 42,
+    maxRadius: 58,
+  },
+  {
+    label: '보통',
+    minScore: 5,
+    activeBalloons: 5,
+    speedScale: 1.35,
+    minRadius: 34,
+    maxRadius: 50,
+  },
+  {
+    label: '어려움',
+    minScore: 12,
+    activeBalloons: 6,
+    speedScale: 1.75,
+    minRadius: 28,
+    maxRadius: 44,
+  },
+];
+
+function getDifficulty(score: number): Difficulty {
+  return DIFFICULTIES.reduce((current, next) =>
+    score >= next.minScore ? next : current
+  );
+}
+
+function randomWithin(min: number, max: number): number {
+  return max <= min ? min : randomBetween(min, max);
+}
+
+function createBalloon(w: number, h: number, difficulty: Difficulty): Balloon {
+  const padding = Math.min(80, Math.max(45, Math.min(w, h) * 0.12));
+  const speedX =
+    randomBetween(0.35, 0.8) *
+    difficulty.speedScale *
+    (Math.random() > 0.5 ? 1 : -1);
+  const speedY = -randomBetween(0.2, 0.6) * difficulty.speedScale;
+
   return {
-    x: randomBetween(80, w - 80),
-    y: randomBetween(80, h - 80),
-    vx: randomBetween(-0.8, 0.8),
-    vy: randomBetween(-0.6, -0.2),
-    radius: randomBetween(35, 55),
+    x: randomWithin(padding, w - padding),
+    y: randomWithin(padding, h - padding),
+    vx: speedX,
+    vy: speedY,
+    radius: randomBetween(difficulty.minRadius, difficulty.maxRadius),
     hue: randomBetween(0, 360),
     popping: false,
     popScale: 1,
@@ -40,22 +95,35 @@ function createBalloon(w: number, h: number): Balloon {
 
 export default function BalloonChase() {
   const { pointerScale } = useSettings();
+  const { recordPlay } = usePlayRecorder('balloon-chase', '풍선 따라가기');
   const [score, setScore] = useState(0);
   const mouseRef = useRef({ x: -100, y: -100 });
   const balloonsRef = useRef<Balloon[]>([]);
   const particlesRef = useRef<Particle[]>([]);
   const initRef = useRef(false);
+  const difficulty = getDifficulty(score);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+  const updatePointer = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    mouseRef.current = getPointerPosition(e);
+  }, []);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      capturePointer(e);
+      updatePointer(e);
     },
-    []
+    [updatePointer]
   );
+
+  const handleBeforeBack = useCallback(() => {
+    if (score <= 0) return;
+    recordPlay({
+      score,
+      success: false,
+      difficulty: difficulty.label,
+      details: { activeBalloons: difficulty.activeBalloons },
+    });
+  }, [difficulty, recordPlay, score]);
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
@@ -65,8 +133,8 @@ export default function BalloonChase() {
       const h = rect.height;
 
       if (!initRef.current) {
-        for (let i = 0; i < 5; i++) {
-          balloonsRef.current.push(createBalloon(w, h));
+        for (let i = 0; i < difficulty.activeBalloons; i++) {
+          balloonsRef.current.push(createBalloon(w, h, difficulty));
         }
         initRef.current = true;
       }
@@ -83,7 +151,8 @@ export default function BalloonChase() {
           return;
         }
 
-        b.x += b.vx + Math.sin(frame * 0.02 + b.hue) * 0.3;
+        b.x +=
+          b.vx + Math.sin(frame * 0.02 + b.hue) * 0.25 * difficulty.speedScale;
         b.y += b.vy;
 
         if (b.x < b.radius || b.x > w - b.radius) b.vx *= -1;
@@ -142,8 +211,11 @@ export default function BalloonChase() {
         (b) => !b.popping || b.popScale > 0.05
       );
 
-      while (balloonsRef.current.filter((b) => !b.popping).length < 4) {
-        balloonsRef.current.push(createBalloon(w, h));
+      while (
+        balloonsRef.current.filter((b) => !b.popping).length <
+        difficulty.activeBalloons
+      ) {
+        balloonsRef.current.push(createBalloon(w, h, difficulty));
       }
 
       particlesRef.current = updateParticles(particlesRef.current);
@@ -156,20 +228,26 @@ export default function BalloonChase() {
       ctx.fill();
       ctx.restore();
     },
-    [pointerScale]
+    [difficulty, pointerScale]
   );
 
-  const canvasRef = useCanvas(draw, [pointerScale]);
+  const canvasRef = useCanvas(draw, [difficulty, pointerScale]);
 
   return (
-    <GameLayout title="🎈 풍선 따라가기" color="#00bcd4">
+    <GameLayout
+      title="🎈 풍선 따라가기"
+      color="#00bcd4"
+      onBeforeBack={handleBeforeBack}
+    >
       <div className="balloon-chase">
         <canvas
           ref={canvasRef}
           className="balloon-canvas"
-          onMouseMove={handleMouseMove}
+          onPointerDown={handlePointerDown}
+          onPointerMove={updatePointer}
         />
         <div className="balloon-score">🎈 {score}개 터뜨림!</div>
+        <div className="balloon-difficulty">{difficulty.label}</div>
       </div>
     </GameLayout>
   );

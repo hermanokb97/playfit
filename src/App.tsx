@@ -10,6 +10,7 @@ import LineTracing from './games/LineTracing/LineTracing';
 import StarCollect from './games/StarCollect/StarCollect';
 import MouseTrail from './games/MouseTrail/MouseTrail';
 import RedGreen from './games/RedGreen/RedGreen';
+import NameWriting from './games/NameWriting/NameWriting';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
       <Route path="/star-collect" element={<StarCollect />} />
       <Route path="/mouse-trail" element={<MouseTrail />} />
       <Route path="/red-green" element={<RedGreen />} />
+      <Route path="/name-writing" element={<NameWriting />} />
     </Routes>
   );
 }

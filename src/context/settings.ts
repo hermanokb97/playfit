@@ -12,7 +12,7 @@ export const STORAGE_POINTER = 'playfit-pointer-scale';
 export const FONT_MIN = 0.85;
 export const FONT_MAX = 1.5;
 export const POINTER_MIN = 0.6;
-export const POINTER_MAX = 2;
+export const POINTER_MAX = 4;
 
 export const SettingsContext = createContext<SettingsContextValue | null>(null);
 

@@ -34,6 +34,14 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.red-green-level {
+  min-height: 1.8rem;
+  font-size: clamp(1.25rem, 3vw, 1.8rem);
+  font-weight: 900;
+  color: var(--color-text);
+  text-align: center;
+}
+
 .red-green-button {
   width: min(62vw, 420px);
   aspect-ratio: 1;

@@ -8,13 +8,44 @@ import './RedGreen.css';
 type Phase = 'red' | 'green';
 type Feedback = { type: 'correct' | 'wrong'; message: string };
 type WrongKind = 'miss' | 'falsePress';
+type Difficulty = {
+  label: string;
+  description: string;
+  mode: 'alternate' | 'random';
+};
 
 const TARGET_SCORE = 10;
+const LEVEL_TWO_SCORE = 5;
 const RED_DURATION = 1700;
 const GREEN_DURATION = 1500;
 
-function pickPhase(): Phase {
+function getDifficulty(score: number): Difficulty {
+  if (score < LEVEL_TWO_SCORE) {
+    return {
+      label: '1단계',
+      description: '번갈아 나와요',
+      mode: 'alternate',
+    };
+  }
+
+  return {
+    label: '2단계',
+    description: '변칙적으로 나와요',
+    mode: 'random',
+  };
+}
+
+function pickVariablePhase(previous: Phase): Phase {
+  if (Math.random() < 0.35) return previous;
   return Math.random() > 0.45 ? 'green' : 'red';
+}
+
+function pickNextPhase(previous: Phase, difficulty: Difficulty): Phase {
+  if (difficulty.mode === 'alternate') {
+    return previous === 'red' ? 'green' : 'red';
+  }
+
+  return pickVariablePhase(previous);
 }
 
 export default function RedGreen() {
@@ -30,6 +61,7 @@ export default function RedGreen() {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [locked, setLocked] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const difficulty = getDifficulty(score);
 
   const scoreRef = useRef(0);
   const missesRef = useRef(0);
@@ -50,7 +82,9 @@ export default function RedGreen() {
       lockedRef.current = false;
       setLocked(false);
       setFeedback(null);
-      setPhase(pickPhase());
+      setPhase((current) =>
+        pickNextPhase(current, getDifficulty(scoreRef.current))
+      );
       setTurn((current) => current + 1);
     }, 850);
   }, [clearAdvanceTimer]);
@@ -61,6 +95,7 @@ export default function RedGreen() {
         score: nextScore,
         total: TARGET_SCORE,
         success: true,
+        difficulty: getDifficulty(nextScore).label,
         details: {
           misses: missesRef.current,
           falsePresses: falsePressesRef.current,
@@ -162,8 +197,9 @@ export default function RedGreen() {
       total: TARGET_SCORE,
       success: false,
       details: { misses, falsePresses },
+      difficulty: difficulty.label,
     });
-  }, [falsePresses, misses, recordPlay, score]);
+  }, [difficulty.label, falsePresses, misses, recordPlay, score]);
 
   return (
     <GameLayout
@@ -174,8 +210,13 @@ export default function RedGreen() {
       <div className={`red-green red-green-${phase}`}>
         <div className="red-green-stats">
           <span>정답 {score} / {TARGET_SCORE}</span>
+          <span>{difficulty.label}</span>
           <span>놓침 {misses}</span>
           <span>빨강 누름 {falsePresses}</span>
+        </div>
+
+        <div className="red-green-level" aria-live="polite">
+          {difficulty.description}
         </div>
 
         <button

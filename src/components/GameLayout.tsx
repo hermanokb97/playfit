@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AccessibilitySettings from './AccessibilitySettings';
-import { useSettings, settingsBounds } from '../context/SettingsContext';
+import { useSettings, settingsBounds } from '../context/settings';
 import { playClick } from '../utils/soundGenerator';
 import './GameLayout.css';
 
@@ -9,15 +9,22 @@ interface GameLayoutProps {
   title: string;
   color: string;
   children: React.ReactNode;
+  onBeforeBack?: () => void;
 }
 
-export default function GameLayout({ title, color, children }: GameLayoutProps) {
+export default function GameLayout({
+  title,
+  color,
+  children,
+  onBeforeBack,
+}: GameLayoutProps) {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { pointerScale, setPointerScale } = useSettings();
   const pointerControlId = 'game-pointer-scale';
 
   const handleBack = () => {
+    onBeforeBack?.();
     playClick();
     navigate('/');
   };
@@ -42,10 +49,10 @@ export default function GameLayout({ title, color, children }: GameLayoutProps) 
         <div
           className="game-pointer-control"
           role="group"
-          aria-label="마우스 크기 조절"
+          aria-label="포인터 크기 조절"
         >
           <label className="game-pointer-label" htmlFor={pointerControlId}>
-            마우스 크기
+            포인터 크기
           </label>
           <input
             id={pointerControlId}
@@ -69,7 +76,7 @@ export default function GameLayout({ title, color, children }: GameLayoutProps) 
         type="button"
         className="game-settings-fab"
         onClick={openSettings}
-        aria-label="글자와 마우스 크기 설정"
+        aria-label="글자와 포인터 크기 설정"
       >
         ⚙️
       </button>

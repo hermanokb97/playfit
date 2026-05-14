@@ -1,10 +1,12 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
 import SuccessOverlay from '../../components/SuccessOverlay';
-import { useSettings } from '../../context/SettingsContext';
+import { useSettings } from '../../context/settings';
 import { useCanvas } from '../../hooks/useCanvas';
+import { usePlayRecorder } from '../../hooks/usePlayRecorder';
 import { playDing, playSuccess } from '../../utils/soundGenerator';
 import { distance } from '../../utils/animations';
+import { capturePointer, getPointerPosition } from '../../utils/pointer';
 import './LineTracing.css';
 
 interface PathPoint {
@@ -34,6 +36,7 @@ const BASE_TOLERANCE = 35;
 
 export default function LineTracing() {
   const { pointerScale, fontScale } = useSettings();
+  const { recordPlay, resetSession } = usePlayRecorder('line-tracing', '선 따라가기');
   const [progress, setProgress] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [level, setLevel] = useState(0);
@@ -44,15 +47,16 @@ export default function LineTracing() {
   const initRef = useRef(false);
   const prevOnPath = useRef(false);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+  const updatePointer = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    mouseRef.current = getPointerPosition(e);
+  }, []);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      capturePointer(e);
+      updatePointer(e);
     },
-    []
+    [updatePointer]
   );
 
   const handleSuccessDone = useCallback(() => {
@@ -61,7 +65,18 @@ export default function LineTracing() {
     initRef.current = false;
     visitedRef.current.clear();
     setProgress(0);
-  }, []);
+    resetSession();
+  }, [resetSession]);
+
+  const handleBeforeBack = useCallback(() => {
+    if (progress <= 0) return;
+    recordPlay({
+      score: Math.round(progress * 100),
+      total: 100,
+      success: false,
+      difficulty: `${level + 1}단계`,
+    });
+  }, [level, progress, recordPlay]);
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -167,6 +182,12 @@ export default function LineTracing() {
 
       if (prog >= 0.85 && !showSuccess) {
         playSuccess();
+        recordPlay({
+          score: Math.round(prog * 100),
+          total: 100,
+          success: true,
+          difficulty: `${level + 1}단계`,
+        });
         setShowSuccess(true);
       }
 
@@ -192,18 +213,23 @@ export default function LineTracing() {
       ctx.fill();
       ctx.restore();
     },
-    [showSuccess, pointerScale, fontScale]
+    [showSuccess, pointerScale, fontScale, level, recordPlay]
   );
 
   const canvasRef = useCanvas(draw, [level, pointerScale, fontScale]);
 
   return (
-    <GameLayout title="✏️ 선 따라가기" color="#009688">
+    <GameLayout
+      title="✏️ 선 따라가기"
+      color="#009688"
+      onBeforeBack={handleBeforeBack}
+    >
       <div className="line-tracing">
         <canvas
           ref={canvasRef}
           className="line-canvas"
-          onMouseMove={handleMouseMove}
+          onPointerDown={handlePointerDown}
+          onPointerMove={updatePointer}
         />
         <div className="line-progress">
           <div className="line-progress-bar">

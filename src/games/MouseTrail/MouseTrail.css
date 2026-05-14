@@ -8,6 +8,7 @@
   width: 100%;
   height: 100%;
   cursor: crosshair;
+  touch-action: none;
 }
 
 .trail-toolbar {
@@ -47,4 +48,23 @@
   font-weight: 700;
   color: var(--color-text-light);
   white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .trail-toolbar {
+    left: max(16px, env(safe-area-inset-left));
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    transform: none;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 18px;
+  }
+
+  .trail-hint {
+    white-space: normal;
+    text-align: center;
+  }
 }

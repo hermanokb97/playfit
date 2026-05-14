@@ -95,3 +95,25 @@
   font-weight: 700;
   color: var(--color-text-light);
 }
+
+@media (max-width: 900px) {
+  .follow-order {
+    gap: 36px;
+    padding: 24px max(18px, env(safe-area-inset-left))
+      max(24px, env(safe-area-inset-bottom));
+  }
+
+  .order-track {
+    width: min(88vw, 620px);
+  }
+
+  .order-btn {
+    width: clamp(76px, 12vw, 96px);
+    height: clamp(76px, 12vw, 96px);
+    font-size: 1.9rem;
+  }
+
+  .order-hint {
+    text-align: center;
+  }
+}

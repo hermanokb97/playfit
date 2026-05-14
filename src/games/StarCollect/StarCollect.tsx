@@ -1,10 +1,12 @@
 import { useCallback, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
 import SuccessOverlay from '../../components/SuccessOverlay';
-import { useSettings } from '../../context/SettingsContext';
+import { useSettings } from '../../context/settings';
 import { useCanvas } from '../../hooks/useCanvas';
+import { usePlayRecorder } from '../../hooks/usePlayRecorder';
 import { playStarCollect } from '../../utils/soundGenerator';
 import { distance, randomBetween } from '../../utils/animations';
+import { capturePointer, getPointerPosition } from '../../utils/pointer';
 import './StarCollect.css';
 
 interface Star {
@@ -35,6 +37,7 @@ const TOTAL_STARS = 15;
 
 export default function StarCollect() {
   const { pointerScale } = useSettings();
+  const { recordPlay, resetSession } = usePlayRecorder('star-collect', '별 모으기');
   const [collected, setCollected] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [round, setRound] = useState(0);
@@ -42,15 +45,16 @@ export default function StarCollect() {
   const starsRef = useRef<Star[]>([]);
   const initRef = useRef(false);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
+  const updatePointer = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    mouseRef.current = getPointerPosition(e);
+  }, []);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      capturePointer(e);
+      updatePointer(e);
     },
-    []
+    [updatePointer]
   );
 
   const handleSuccessDone = useCallback(() => {
@@ -58,7 +62,17 @@ export default function StarCollect() {
     setRound((r) => r + 1);
     initRef.current = false;
     setCollected(0);
-  }, []);
+    resetSession();
+  }, [resetSession]);
+
+  const handleBeforeBack = useCallback(() => {
+    if (collected <= 0) return;
+    recordPlay({
+      score: collected,
+      total: TOTAL_STARS,
+      success: false,
+    });
+  }, [collected, recordPlay]);
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D, frame: number) => {
@@ -104,6 +118,11 @@ export default function StarCollect() {
           setCollected((c) => {
             const next = c + 1;
             if (next >= TOTAL_STARS) {
+              recordPlay({
+                score: next,
+                total: TOTAL_STARS,
+                success: true,
+              });
               setShowSuccess(true);
             }
             return next;
@@ -138,23 +157,28 @@ export default function StarCollect() {
       ctx.fill();
       ctx.restore();
     },
-    [pointerScale]
+    [pointerScale, recordPlay]
   );
 
   const canvasRef = useCanvas(draw, [round, pointerScale]);
 
   return (
-    <GameLayout title="🌟 별 모으기" color="#ffc107">
+    <GameLayout
+      title="🌟 별 모으기"
+      color="#ffc107"
+      onBeforeBack={handleBeforeBack}
+    >
       <div className="star-collect">
         <canvas
           ref={canvasRef}
           className="star-canvas"
-          onMouseMove={handleMouseMove}
+          onPointerDown={handlePointerDown}
+          onPointerMove={updatePointer}
         />
         <div className="star-counter">
           ⭐ {collected} / {TOTAL_STARS}
         </div>
-        <p className="star-hint">마우스를 별 위로 움직여 보세요! (클릭 안 해도 돼요)</p>
+        <p className="star-hint">손가락이나 마우스를 별 위로 움직여 보세요!</p>
         {showSuccess && (
           <SuccessOverlay
             message="별을 다 모았어요! ⭐"

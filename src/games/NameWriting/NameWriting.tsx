@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import GameLayout from '../../components/GameLayout';
 import SuccessOverlay from '../../components/SuccessOverlay';
-import { useSettings } from '../../context/SettingsContext';
+import { useSettings } from '../../context/settings';
 import { playClick, playDing } from '../../utils/soundGenerator';
 import './NameWriting.css';
 
